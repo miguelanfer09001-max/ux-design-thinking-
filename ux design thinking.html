@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduMetrics - Prototipo UX (Wireframe)</title>
+  <style>
+    :root {
+      --bg: #f6f8fa;
+      --card-bg: #ffffff;
+      --border: #d0d7de;
+      --text: #24292f;
+      --text-muted: #57606a;
+      --primary: #6e56cf;
+      --primary-light: #f0edff;
+      --success: #2da44e;
+      --warning: #bf8700;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+    /* Sidebar */
+    aside { width: 220px; background: var(--card-bg); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+    .logo { font-weight: bold; font-size: 1.1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    .nav-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .nav-item { padding: 10px 12px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; color: var(--text-muted); font-weight: 500; }
+    .nav-item.active, .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+
+    /* Main Content */
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+    select, input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; outline: none; }
+    
+    .content { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
+
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+    .card-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card-value { font-size: 1.8rem; font-weight: bold; margin: 8px 0 4px 0; }
+    .card-badge { font-size: 0.8rem; color: var(--success); font-weight: 600; }
+
+    /* Charts Section */
+    .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    
+    /* Bar Chart Component */
+    .chart-container { display: flex; flex-direction: column; gap: 16px; }
+    .chart-bars { display: flex; justify-content: space-around; align-items: flex-end; height: 180px; padding-top: 20px; border-bottom: 1px solid var(--border); }
+    .bar-wrapper { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 20%; cursor: pointer; }
+    .bar { width: 100%; background: var(--border); border-radius: 4px 4px 0 0; transition: all 0.2s ease; position: relative; }
+    .bar-wrapper:hover .bar, .bar-wrapper.active .bar { background: var(--primary); }
+    .bar-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+
+    /* Table Component */
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 12px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-muted); font-weight: 600; background: var(--bg); }
+    .status { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .status-done { background: #dafbe1; color: #1a7f37; }
+    .status-pending { background: #fff8c5; color: #9a6700; }
+
+    /* Modal / Toast Detail */
+    #detail-panel { display: none; background: var(--primary-light); border: 1px solid var(--primary); border-radius: 6px; padding: 12px 16px; font-size: 0.85rem; color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="logo">📊 EduMetrics</div>
+    <ul class="nav-list">
+      <li class="nav-item active">📊 Dashboard</li>
+      <li class="nav-item">🎯 Mis Metas</li>
+      <li class="nav-item">📈 Reportes</li>
+      <li class="nav-item">⚙️ Ajustes</li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main>
+    <header>
+      <input type="text" placeholder="🔍 Buscar asignatura..." style="width: 240px;">
+      <div class="header-actions">
+        <select id="time-filter" onchange="updateFilter()">
+          <option value="semana">Esta Semana</option>
+          <option value="mes">Último Mes</option>
+        </select>
+        <span style="font-size: 0.85rem; font-weight: 600;">Estudiante UX</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Feedback Panel -->
+      <div id="detail-panel">
+        <strong>Detalle UX:</strong> Haz clic en cualquier barra del gráfico para simular la vista en detalle por materia.
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">Horas de Estudio</div>
+          <div class="card-value" id="kpi-hours">28.5 hrs</div>
+          <div class="card-badge">↑ +15% vs semana anterior</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tareas Entregadas</div>
+          <div class="card-value">18 / 20</div>
+          <div class="card-badge" style="color: var(--text-muted);">90% cumplimiento</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Promedio General</div>
+          <div class="card-value">4.6 / 5.0</div>
+          <div class="card-badge">Top 5% de la cohorte</div>
+        </div>
+      </div>
+
+      <!-- Charts & Breakdown -->
+      <div class="dashboard-grid">
+        <div class="card chart-container">
+          <div class="card-title">Dedicación por Asignatura (Horas)</div>
+          <div class="chart-bars">
+            <div class="bar-wrapper" onclick="selectSubject('UX Design', '12.5 hrs')">
+              <div class="bar" style="height: 140px;"></div>
+              <span class="bar-label">UX Design</span>
+            </div>
+            <div class="bar-wrapper" onclick="selectSubject('Programación', '8.0 hrs')">
+              <div class="bar" style="height: 90px;"></div>
+              <span class="bar-label">Coding</span>
+            </div>
+            <div class="bar-wrapper" onclick="selectSubject('Investigación', '5.0 hrs')">
+              <div class="bar" style="height: 60px;"></div>
+              <span class="bar-label">Research</span>
+            </div>
+            <div class="bar-wrapper" onclick="selectSubject('UI & Layout', '3.0 hrs')">
+              <div class="bar" style="height: 40px;"></div>
+              <span class="bar-label">UI Design</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Distribución de Trabajo</div>
+          <div style="padding: 20px 0; font-size: 0.85rem; display: flex; flex-direction: column; gap: 12px;">
+            <div>🎨 <strong>45%</strong> Prototipado</div>
+            <div>📚 <strong>30%</strong> Lecturas & Teoría</div>
+            <div>🧪 <strong>25%</strong> Pruebas de Usabilidad</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom: 12px;">Próximas Entregas - Digital House</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Proyecto / Entregable</th>
+              <th>Módulo</th>
+              <th>Fecha Límite</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Prototipado 2 (Wireframes)</td>
+              <td>UX Design Thinking</td>
+              <td>24 Oct 2026</td>
+              <td><span class="status status-pending">En Progreso</span></td>
+            </tr>
+            <tr>
+              <td>Reporte de Benchmark</td>
+              <td>Investigación de Usuarios</td>
+              <td>18 Oct 2026</td>
+              <td><span class="status status-done">Completado</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function selectSubject(name, hours) {
+      const panel = document.getElementById('detail-panel');
+      panel.style.display = 'block';
+      panel.innerHTML = `<strong>Simulación UX (Interacción):</strong> Seleccionaste la asignatura <strong>${name}</strong> con un total de <strong>${hours}</strong> de dedicación registrada.`;
+    }
+
+    function updateFilter() {
+      const value = document.getElementById('time-filter').value;
+      const kpi = document.getElementById('kpi-hours');
+      if(value === 'mes') {
+        kpi.innerText = '112.0 hrs';
+      } else {
+        kpi.innerText = '28.5 hrs';
+      }
+    }
+  </script>
+</body>
+</html>
